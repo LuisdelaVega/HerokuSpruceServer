@@ -11,7 +11,7 @@ app.configure(function() {
     	secret: 'yoursecret',
     	cookie: {
       		path: '/',
-      		domain: '127.0.0.1:8020',
+      		// domain: '127.0.0.1:8020',
       		maxAge: 1000 * 60 * 24 // 24 hours
     	}
 }));
@@ -529,8 +529,11 @@ app.get('/SpruceServer/home/', function(req, res) {
 
 });
 
+app.get('/', function(request, response) {
+  response.send('Hello My Spruce!');
+});
 
-
-// Server starts running when listen is called.
-app.listen(process.env.PORT || 3412);
-console.log("server listening");
+var port = process.env.PORT || 5000;
+app.listen(port, function() {
+  console.log("Listening on " + port);
+});
