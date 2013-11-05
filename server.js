@@ -531,7 +531,7 @@ app.get('/SpruceServer/home/', function(req, res) {
 
 app.get('/', function(req, res) {
   console.log("GET " + req.url);
-	console.log("Cart for account: "+req.body.acc);
+	// console.log("Cart for account: "+req.body.acc);
 	
 	var client = new pg.Client(conString);
 	client.connect();
