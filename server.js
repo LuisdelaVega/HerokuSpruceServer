@@ -29,7 +29,7 @@ var fs = require('fs');
 var item = require("./objects/item.js");
 var pg = require('pg');
 
-var conString = "pg://postgres:post123@localhost:5432/SpruceDB";
+var conString = "pg://slzyxeyyvmemqf:E1U_YhjY2wQ7HV0tX5nt3X1ffl@ecc2-107-20-228-206.compute-1.amazonaws.com/deni3anos16abq";
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
