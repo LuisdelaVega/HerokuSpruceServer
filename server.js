@@ -529,7 +529,7 @@ app.get('/SpruceServer/home/', function(req, res) {
 
 });
 
-app.get('/', function(request, response) {
+app.get('/', function(req, res) {
   console.log("GET " + req.url);
 	console.log("Cart for account: "+req.body.acc);
 	
