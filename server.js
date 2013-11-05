@@ -530,7 +530,23 @@ app.get('/SpruceServer/home/', function(req, res) {
 });
 
 app.get('/', function(request, response) {
-  response.send('Hello My Spruce!');
+  console.log("GET " + req.url);
+	console.log("Cart for account: "+req.body.acc);
+	
+	var client = new pg.Client(conString);
+	client.connect();
+
+	var query = client.query({
+		text : "SELECT * FROM account"
+	});
+	query.on("row", function (row, result) {
+   		result.addRow(row);
+	});
+	query.on("end", function (result){
+		var response = {"accounts" : result.rows};
+		client.end();
+ 		res.json(response);
+	});
 });
 
 var port = process.env.PORT || 5000;
