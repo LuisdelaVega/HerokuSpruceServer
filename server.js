@@ -29,7 +29,7 @@ var fs = require('fs');
 var item = require("./objects/item.js");
 var pg = require('pg');
 
-var conString = "pg://slzyxeyyvmemqf:E1U_YhjY2wQ7HV0tX5nt3X1ffl@ecc2-107-20-228-206.compute-1.amazonaws.com/deni3anos16abq";
+var conString = "pg://slzyxeyyvmemqf:E1U_YhjY2wQ7HV0tX5nt3X1ffl@ecc2-107-20-228-206.compute-1.amazonaws.com:5432/deni3anos16abq";
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -530,14 +530,14 @@ app.get('/SpruceServer/home/', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  console.log("GET " + req.url);
+  // console.log("GET " + req.url);
 	// console.log("Cart for account: "+req.body.acc);
 	
 	var client = new pg.Client(conString);
 	client.connect();
 
 	var query = client.query({
-		text : "SELECT * FROM account"
+		text : "SELECT * FROM account;"
 	});
 	query.on("row", function (row, result) {
    		result.addRow(row);
