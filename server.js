@@ -66,7 +66,7 @@ app.put('/SpruceServer/authenticate1', function(req, res) {
 	console.log(username);
 	
 	var query = client.query({
-		text: "SELECT accslt FROM account WHERE accusername = $1",
+		text: "SELECT accslt FROM account WHERE accusername = $1;",
 		values: [username]
 	});
 	query.on("row", function (row, result) {
@@ -100,7 +100,7 @@ app.put('/SpruceServer/authenticate2', function(req, res) {
 	console.log(password);
 	
 	var query = client.query({
-		text: "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2",
+		text: "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2;",
 		values: [username, password]
 	});
 	query.on("row", function (row, result) {
@@ -537,7 +537,7 @@ app.get('/', function(req, res) {
 	client.connect();
 
 	var query = client.query({
-		text : "SELECT * FROM account;"
+		text : "SELECT * FROM account"
 	});
 	query.on("row", function (row, result) {
    		result.addRow(row);
