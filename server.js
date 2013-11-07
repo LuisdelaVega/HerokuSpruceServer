@@ -339,7 +339,7 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		"group by item.itemid order by date";
 
 		var query = client.query({
-			text : queryText,
+			text : "select item.*, max(biddate) as date, max(bidprice) from account natural join places natural join bid natural join on_event natural join bid_event natural join participates natural join item where account.accpassword = $1 group by item.itemid order by date",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
@@ -362,7 +362,8 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		"where restock = false)";
 
 		var query = client.query({
-			text : queryText,
+			text : "select item.*" + 
+		"from account natural join sells natural join item where account.accpassword = $1 and itemid not in (select itemid" + "from sold natural join item where restock = false)",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
@@ -383,7 +384,7 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		"where account.accpassword = $1";
 
 		var query = client.query({
-			text : queryText,
+			text : "select item.* from account natural join sold natural join item where account.accpassword = $1",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
