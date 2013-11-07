@@ -61,28 +61,49 @@ app.put('/SpruceServer/authenticate1', function(req, res) {
 	client.connect();
 
 	var username = req.body.username;
-	console.log(username);
+	console.log("Login: "+username);
 
 	var query = client.query({
-		text : "SELECT accslt FROM account WHERE accusername = $1;",
+		text : "SELECT accslt FROM account WHERE accusername = $1",
 		values : [username]
 	});
 	query.on("row", function(row, result) {
-		console.log(row.accusername);
 		result.addRow(row);
 	});
 	query.on("end", function(result) {
 		if (result.rows.length > 0) {
-			console.log(result.rows);
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
 			var response = {
+				"success":true,
 				"acc" : result.rows
 			};
 			client.end();
 			res.json(response);
+			console.log("Found username "+ JSON.stringify(response));
 		} else {
-			client.end();
+			var query1 = client.query({
+				text : "SELECT adminslt as accslt FROM administrator WHERE adminusername = $1",
+				values : [username]
+			});
+			query1.on("row", function(row, result) {
+				result.addRow(row);
+			});
+			query1.on("end", function(result) {
+				if (result.rows.length > 0) {
+					var response = {
+						"success":true,
+						"acc" : result.rows
+					};
+					res.json(response);
+					console.log("Found admin "+JSON.stringify(response));
+				}
+				else{
+					res.json({"success":false});
+					console.log("No username or admin "+JSON.stringify(response));
+				}
+				client.end();
+			});
 		}
 	});
 });
@@ -94,30 +115,52 @@ app.put('/SpruceServer/authenticate2', function(req, res) {
 	client.connect();
 
 	var username = req.body.username;
-	console.log(username);
 	var password = req.body.hash;
-	console.log(password);
+	console.log("Authenticating "+username+" "+password);
 
 	var query = client.query({
-		text : "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2;",
+		text : "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2",
 		values : [username, password]
 	});
 	query.on("row", function(row, result) {
-		console.log(row.accusername);
 		result.addRow(row);
 	});
 	query.on("end", function(result) {
 		if (result.rows.length > 0) {
-			console.log(result.rows);
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
 			var response = {
+				"success":true,
+				"user":"user",
 				"acc" : result.rows
 			};
 			client.end();
 			res.json(response);
+			console.log("Found matching username"+JSON.stringify(response));
 		} else {
-			client.end();
+			var query1 = client.query({
+				text : "SELECT adminpassword as accpassword FROM administrator WHERE adminusername = $1 AND adminpassword = $2",
+				values : [username,password]
+			});
+			query1.on("row", function(row, result) {
+				result.addRow(row);
+			});
+			query1.on("end", function(result) {
+				if (result.rows.length > 0) {
+					var response = {
+						"success":true,
+						"user":"admin",
+						"acc" : result.rows
+					};
+					res.json(response);
+					console.log("Found matching admin"+JSON.stringify(response));
+				}
+				else{
+					res.json({"success":false});
+					console.log("Failed authentication "+JSON.stringify(response));
+				}
+				client.end();
+			});
 		}
 	});
 });
