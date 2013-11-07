@@ -1,4 +1,4 @@
-// Express is the web framework 
+// Express is the web framework
 var express = require('express');
 var store = new express.session.MemoryStore;
 
@@ -7,127 +7,127 @@ app.configure(function() {
 	app.use(express.bodyParser());
 	app.use(express.errorHandler());
 	app.use(express.cookieParser());
-  	app.use(express.session({
-    	secret: 'yoursecret',
-    	cookie: {
-      		path: '/',
-      		// domain: '127.0.0.1:8020',
-      		maxAge: 1000 * 60 * 24 // 24 hours
-    	}
-}));
+	app.use(express.session({
+		secret : 'yoursecret',
+		cookie : {
+			path : '/',
+			// domain: '127.0.0.1:8020',
+			maxAge : 1000 * 60 * 24 // 24 hours
+		}
+	}));
 	app.use(function(req, res, next) {
 		res.header('Access-Control-Allow-Credentials', true);
-		res.header('Access-Control-Allow-Origin',      '*');
-		res.header('Access-Control-Allow-Methods',     'GET,PUT,POST,DELETE');
-		res.header('Access-Control-Allow-Headers',     'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+		res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
 		next();
 	});
 });
-
 
 var fs = require('fs');
 var item = require("./objects/item.js");
 var pg = require('pg');
 
-var conString = process.env.DATABASE_URL;//"pg://slzyxeyyvmemqf:E1U_YhjY2wQ7HV0tX5nt3X1ffl@ecc2-107-20-228-206.compute-1.amazonaws.com:5432/deni3anos16abq";
+var conString = process.env.DATABASE_URL;
+//"pg://slzyxeyyvmemqf:E1U_YhjY2wQ7HV0tX5nt3X1ffl@ecc2-107-20-228-206.compute-1.amazonaws.com:5432/deni3anos16abq";
 
 var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
-    // intercept OPTIONS method
-    if ('OPTIONS' == req.method) {
-      res.send(200);
-    }
-    else {
-      next();
-    }
+	// intercept OPTIONS method
+	if ('OPTIONS' == req.method) {
+		res.send(200);
+	} else {
+		next();
+	}
 };
 
 // REST Operations
-// Idea: Data is created, read, updated, or deleted through a URL that 
+// Idea: Data is created, read, updated, or deleted through a URL that
 // identifies the resource to be created, read, updated, or deleted.
 // The URL and any other input data is sent over standard HTTP requests.
-// Mapping of HTTP with REST 
+// Mapping of HTTP with REST
 // a) POST - Created a new object. (Database create operation)
 // b) GET - Read an individual object, collection of object, or simple values (Database read Operation)
 // c) PUT - Update an individual object, or collection  (Database update operation)
 // d) DELETE - Remove an individual object, or collection (Database delete operation)
 
-
 app.put('/SpruceServer/authenticate1', function(req, res) {
 	console.log("PUT " + req.url);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
+
 	var username = req.body.username;
 	console.log(username);
-	
+
 	var query = client.query({
-		text: "SELECT accslt FROM account WHERE accusername = $1;",
-		values: [username]
+		text : "SELECT accslt FROM account WHERE accusername = $1;",
+		values : [username]
 	});
-	query.on("row", function (row, result) {
+	query.on("row", function(row, result) {
 		console.log(row.accusername);
-    	result.addRow(row);
+		result.addRow(row);
 	});
-	query.on("end", function (result) {
-		if(result.rows.length > 0){	
+	query.on("end", function(result) {
+		if (result.rows.length > 0) {
 			console.log(result.rows);
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
-			var response = {"acc" : result.rows};
+			var response = {
+				"acc" : result.rows
+			};
 			client.end();
-  			res.json(response);
-  		}
-  		else{
-  			client.end();
-  		}
- 	});
+			res.json(response);
+		} else {
+			client.end();
+		}
+	});
 });
 
 app.put('/SpruceServer/authenticate2', function(req, res) {
 	console.log("PUT " + req.url);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
+
 	var username = req.body.username;
 	console.log(username);
 	var password = req.body.hash;
 	console.log(password);
-	
+
 	var query = client.query({
-		text: "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2;",
-		values: [username, password]
+		text : "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2;",
+		values : [username, password]
 	});
-	query.on("row", function (row, result) {
+	query.on("row", function(row, result) {
 		console.log(row.accusername);
-    	result.addRow(row);
+		result.addRow(row);
 	});
-	query.on("end", function (result) {
-		if(result.rows.length > 0){	
+	query.on("end", function(result) {
+		if (result.rows.length > 0) {
 			console.log(result.rows);
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
-			var response = {"acc" : result.rows};
+			var response = {
+				"acc" : result.rows
+			};
 			client.end();
-  			res.json(response);
-  		}
-  		else{
-  			client.end();
-  		}
- 	});
+			res.json(response);
+		} else {
+			client.end();
+		}
+	});
 });
 
-app.put('/SpruceServer/signup', function(req, res){
+app.put('/SpruceServer/signup', function(req, res) {
 	console.log("PUT " + req.url);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
+
 	var username = req.body.username;
 	var fname = req.body.fname;
 	var lname = req.body.lname;
@@ -137,7 +137,7 @@ app.put('/SpruceServer/signup', function(req, res){
 	var photo = req.body.photo;
 	var rating = req.body.rating;
 	var slt = req.body.slt;
-	
+
 	console.log(username);
 	console.log(fname);
 	console.log(lname);
@@ -147,46 +147,44 @@ app.put('/SpruceServer/signup', function(req, res){
 	console.log(photo);
 	console.log(slt);
 	console.log(rating);
-	
+
 	var query = client.query({
-		text: "INSERT INTO account VALUES(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9)",
-		values: [fname, lname, username, password, rating, photo, phone, email, slt]
+		text : "INSERT INTO account VALUES(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9)",
+		values : [fname, lname, username, password, rating, photo, phone, email, slt]
 	});
-	query.on("end", function (result) {
-		if(result.rows.length > 0){	
+	query.on("end", function(result) {
+		if (result.rows.length > 0) {
 			// var response = ;
 			client.end();
-  			res.json(true);
-  		}
-  		else{
-  			client.end();
-  		}
- 	});
-	
+			res.json(true);
+		} else {
+			client.end();
+		}
+	});
+
 });
 
 // REST Operation - Info Categories
 app.get('/SpruceServer/getItemsForCategory/:category/:orderby/:offset', function(req, res) {
 	console.log("GET " + req.url);
-	console.log("Account: "+req.session.accid);
-	
+	console.log("Account: " + req.session.accid);
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
+
 	var categoryId = req.params.category;
 	var offset = req.params.offset;
 	var orderby = req.params.orderby.split("-");
 	var query;
 	if (orderby[0] == "none") {
 		query = client.query({
-		text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1 offset $2)",
-		values : [categoryId,offset]
+			text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE (amount > 0 OR restock = true) AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1 offset $2)",
+			values : [categoryId, offset]
 		});
-	} 
-	else {
+	} else {
 		query = client.query({
-		text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1) ORDER BY "+orderby[0]+" "+orderby[1]+" OFFSET $2",
-		values : [categoryId,offset]
+			text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1) ORDER BY " + orderby[0] + " " + orderby[1] + " OFFSET $2",
+			values : [categoryId, offset]
 		});
 	}
 	query.on("row", function(row, result) {
@@ -200,19 +198,17 @@ app.get('/SpruceServer/getItemsForCategory/:category/:orderby/:offset', function
 			//result.rows[0]['hey']='hi'
 			client.end();
 			res.json(response);
-		} 
-		else {
+		} else {
 			var query1;
 			if (orderby[0] == "none") {
 				query1 = client.query({
 					text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid = $1 OFFSET $2",
-					values : [categoryId,offset]
+					values : [categoryId, offset]
 				});
-			} 
-			else {
+			} else {
 				query1 = client.query({
-					text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid = $1 ORDER BY "+orderby[0]+" "+orderby[1]+" OFFSET $2",
-					values : [categoryId,offset]
+					text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid = $1 ORDER BY " + orderby[0] + " " + orderby[1] + " OFFSET $2",
+					values : [categoryId, offset]
 				});
 			}
 			query1.on("row", function(row, result) {
@@ -227,99 +223,163 @@ app.get('/SpruceServer/getItemsForCategory/:category/:orderby/:offset', function
 			});
 		}
 	});
-	
+
 });
 
 app.get('/SpruceServer/getSubCategoryListPopup/:category', function(req, res) {
 	console.log("GET " + req.url);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var categoryId = req.params.category;;
-	
+
+	var categoryId = req.params.category;
+	;
+
 	var query0 = client.query({
-		text: "SELECT C.catid,C.catname FROM category AS C, subcat AS S WHERE S.subcatid=C.catid AND subcatid NOT IN (SELECT subcatid FROM subcat WHERE subcat.catid <> $1)",
-		values: [categoryId],
+		text : "SELECT C.catid,C.catname FROM category AS C, subcat AS S WHERE S.subcatid=C.catid AND subcatid NOT IN (SELECT subcatid FROM subcat WHERE subcat.catid <> $1)",
+		values : [categoryId],
 	});
-	query0.on("row", function (row, result) {
+	query0.on("row", function(row, result) {
 		result.addRow(row);
 	});
-	query0.on("end", function(result){
-		var response = {"categories" : result.rows};
+	query0.on("end", function(result) {
+		var response = {
+			"categories" : result.rows
+		};
 		client.end();
-  		res.json(response);
+		res.json(response);
 	});
 });
 
 app.get('/SpruceServer/getCategoriesForSidePanel', function(req, res) {
 	console.log("GET " + req.url);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
+
 	var categoryId = -1;
-	
+
 	var query0 = client.query({
-		text: "SELECT category.catid, category.catname FROM subcat, category WHERE category.catid = subcat.catid AND category.catid not in (SELECT subcatid FROM subcat) GROUP BY category.catid ORDER BY category.catid"
+		text : "SELECT category.catid, category.catname FROM subcat, category WHERE category.catid = subcat.catid AND category.catid not in (SELECT subcatid FROM subcat) GROUP BY category.catid ORDER BY category.catid"
 	});
-	query0.on("row", function (row, result) {
+	query0.on("row", function(row, result) {
 		result.addRow(row);
 	});
-	query0.on("end", function(result){
-		var response = {"categories" : result.rows};
+	query0.on("end", function(result) {
+		var response = {
+			"categories" : result.rows
+		};
 		client.end();
-  		res.json(response);
+		res.json(response);
 	});
-	
+
 });
 
 app.get('/SpruceServer/getSubCategories', function(req, res) {
 	console.log("GET " + req.url);
 	var response;
-		
+
 	var file = "subcategories.json";
-		
-	fs.readFile(file, 'utf8', function(err, data){
-		if(err){
-			console.log('Error: '+err);
-		}
-		else{
+
+	fs.readFile(file, 'utf8', function(err, data) {
+		if (err) {
+			console.log('Error: ' + err);
+		} else {
 			data = JSON.parse(data);
-			
-			response = {"subcategories" : data};
+
+			response = {
+				"subcategories" : data
+			};
 			res.json(response);
 		}
 	});
 });
 
 //REST My Spruce
-app.get('/SpruceServer/mySpruce/:select', function(req, res) {
+app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 	console.log("GET " + req.url);
-	var response;
-	var index = -1;
-	if(req.params.select=='bidding'){
-		index=0;		
+	/*
+	 var response;
+	 var index = -1;
+	 if(req.params.select=='bidding'){
+	 index=0;
+	 }
+	 else if(req.params.select=='selling'){
+	 index=1;
+	 }
+	 else{
+	 index=2;
+	 }
+	 var file = "items.json";
+
+	 fs.readFile(file, 'utf8', function(err, data){
+	 if(err){
+	 console.log('Error: '+err);
+	 }
+	 else{
+	 data = JSON.parse(data);
+
+	 response = {"items" : data[index]};
+	 res.json(response);
+	 }
+	 });*/
+
+	var client = new pg.Client(conString);
+	client.connect();
+
+	var query;
+	// var index = -1;
+	if (req.params.select == 'bidding') {
+		query = "select item.*, max(biddate) as date, max(bidprice)"+
+			"from account natural join places"+
+			"natural join bid natural join on_event"+
+			"natural join bid_event natural join participates"+
+			"natural join item"+
+			"where account.accpassword = $1"+
+			"group by item.itemid order by date";
+	} else if (req.params.select == 'selling') {
+		query = "select item.*"+
+			"from account natural join sells natural join item"+
+			"where account.accpassword = $1 and itemid not in"+
+				"(select itemid"+
+				"from sold natural join item"+
+				"where restock = false)";
+	} else {
+		query = "select item.*"+
+			"from account natural join sold natural join item"+
+			"where account.accpassword = $1";
 	}
-	else if(req.params.select=='selling'){
-		index=1;			
-	}
-	else{
-		index=2;
-	}
-	var file = "items.json";
-		
-	fs.readFile(file, 'utf8', function(err, data){
-		if(err){
-			console.log('Error: '+err);
-		}
-		else{
-			data = JSON.parse(data);
-			
-			response = {"items" : data[index]};
-			res.json(response);
-		}
+	// var file = "items.json";
+
+	// fs.readFile(file, 'utf8', function(err, data) {
+		// if (err) {
+			// console.log('Error: ' + err);
+		// } else {
+			// data = JSON.parse(data);
+// 
+			// response = {
+				// "items" : data[index]
+			// };
+			// res.json(response);
+		// }
+	// });
+
+	var query = client.query({
+		text : query,
+		values : [req.body.acc]
 	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+		// console.log(id);
+	});
+	query.on("end", function(result) {
+		var response = {
+			"items" : result.rows
+		};
+		client.end();
+		res.json(response);
+	});
+
 });
 
 //REST Get an item for the buyer
@@ -386,20 +446,22 @@ app.get('/SpruceServer/seller-product-bids/:id', function(req, res) {
 app.get('/SpruceServer/myadmintools/:id', function(req, res) {
 	console.log("GET " + req.url);
 	var response;
-	var id=req.params.id;
-	var file = id+".json";
-		
-	fs.readFile(file, 'utf8', function(err, data){
-		if(err){
-			console.log('Error: '+err);
-		}
-		else{
+	var id = req.params.id;
+	var file = id + ".json";
+
+	fs.readFile(file, 'utf8', function(err, data) {
+		if (err) {
+			console.log('Error: ' + err);
+		} else {
 			data = JSON.parse(data);
-			if(id=='category'){
-				response = {"category": data};	
-			}
-			else if(id=='users'){
-				response = {"users": data};
+			if (id == 'category') {
+				response = {
+					"category" : data
+				};
+			} else if (id == 'users') {
+				response = {
+					"users" : data
+				};
 			}
 			res.json(response);
 		}
@@ -409,8 +471,8 @@ app.get('/SpruceServer/myadmintools/:id', function(req, res) {
 //REST for cart
 app.put('/SpruceServer/mycart', function(req, res) {
 	console.log("GET " + req.url);
-	console.log("Cart for account: "+req.body.acc);
-	
+	console.log("Cart for account: " + req.body.acc);
+
 	var client = new pg.Client(conString);
 	client.connect();
 
@@ -418,15 +480,17 @@ app.put('/SpruceServer/mycart', function(req, res) {
 		text : "SELECT item.*,quantity FROM cart NATURAL JOIN contains NATURAL JOIN item NATURAL JOIN belongs_to NATURAL JOIN account WHERE account.accpassword = $1",
 		values : [req.body.acc]
 	});
-	query.on("row", function (row, result) {
-   		result.addRow(row);
+	query.on("row", function(row, result) {
+		result.addRow(row);
 	});
-	query.on("end", function (result){
-		var response = {"cart" : result.rows};
+	query.on("end", function(result) {
+		var response = {
+			"cart" : result.rows
+		};
 		client.end();
- 		res.json(response);
+		res.json(response);
 	});
-		
+
 });
 
 //REST for user store
@@ -434,18 +498,19 @@ app.get('/SpruceServer/user/store', function(req, res) {
 	console.log("GET " + req.url);
 	var response;
 	var file = "items.json";
-		
-	fs.readFile(file, 'utf8', function(err, data){
-		if(err){
-			console.log('Error: '+err);
-		}
-		else{
+
+	fs.readFile(file, 'utf8', function(err, data) {
+		if (err) {
+			console.log('Error: ' + err);
+		} else {
 			data = JSON.parse(data);
-			var result=[];
-			for(var i=0;i<data[2].length;i++){
+			var result = [];
+			for (var i = 0; i < data[2].length; i++) {
 				result.push(data[2][i]);
 			}
-			response = {"items": result};	
+			response = {
+				"items" : result
+			};
 			res.json(response);
 		}
 	});
@@ -454,19 +519,19 @@ app.get('/SpruceServer/user/store', function(req, res) {
 //REST for user profile
 app.put('/SpruceServer/userProfile', function(req, res) {
 	console.log("GET " + req.url);
-		
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
 		text : "SELECT * FROM account WHERE accpassword = $1",
-		values: [password]
+		values : [password]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 
 	query.on("end", function(result) {
 		var response = {
@@ -479,7 +544,7 @@ app.put('/SpruceServer/userProfile', function(req, res) {
 
 //REST Popular Now View
 app.get('/SpruceServer/Spruce/PopularNow/', function(req, res) {
-	console.log("GET " +req.url);
+	console.log("GET " + req.url);
 
 	var client = new pg.Client(conString);
 	client.connect();
@@ -487,11 +552,10 @@ app.get('/SpruceServer/Spruce/PopularNow/', function(req, res) {
 	var query = client.query({
 		text : "SELECT * FROM item WHERE amount > 0 ORDER BY views DESC"
 	});
-	
-	
+
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 
 	query.on("end", function(result) {
 		var response = {
@@ -505,7 +569,7 @@ app.get('/SpruceServer/Spruce/PopularNow/', function(req, res) {
 
 //REST Home View
 app.get('/SpruceServer/home/', function(req, res) {
-	console.log("GET " +req.url);
+	console.log("GET " + req.url);
 
 	var client = new pg.Client(conString);
 	client.connect();
@@ -513,11 +577,10 @@ app.get('/SpruceServer/home/', function(req, res) {
 	var query = client.query({
 		text : "SELECT * FROM item ORDER BY views DESC LIMIT 5"
 	});
-	
-	
+
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 
 	query.on("end", function(result) {
 		var response = {
@@ -530,26 +593,28 @@ app.get('/SpruceServer/home/', function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  // console.log("GET " + req.url);
+	// console.log("GET " + req.url);
 	// console.log("Cart for account: "+req.body.acc);
-	
+
 	var client = new pg.Client(conString);
 	client.connect();
 
 	var query = client.query({
 		text : "SELECT * FROM account"
 	});
-	query.on("row", function (row, result) {
-   		result.addRow(row);
+	query.on("row", function(row, result) {
+		result.addRow(row);
 	});
-	query.on("end", function (result){
-		var response = {"accounts" : result.rows};
+	query.on("end", function(result) {
+		var response = {
+			"accounts" : result.rows
+		};
 		client.end();
- 		res.json(response);
+		res.json(response);
 	});
 });
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
-  console.log("Listening on " + port);
-});
+	console.log("Listening on " + port);
+}); 
