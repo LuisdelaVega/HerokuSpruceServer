@@ -166,8 +166,8 @@ app.put('/SpruceServer/signup', function(req, res) {
 
 // REST Operation - Info Categories
 app.get('/SpruceServer/getItemsForCategory/:category/:orderby/:offset', function(req, res) {
-	console.log("GET " + req.url);
-	console.log("Account: " + req.session.accid);
+	// console.log("GET " + req.url);
+	// console.log("Account: " + req.session.accid);
 
 	var client = new pg.Client(conString);
 	client.connect();
@@ -297,47 +297,13 @@ app.get('/SpruceServer/getSubCategories', function(req, res) {
 
 //REST My Spruce
 app.put('/SpruceServer/mySpruce/:select', function(req, res) {
-	console.log("GET " + req.url);
-	/*
-	 var response;
-	 var index = -1;
-	 if(req.params.select=='bidding'){
-	 index=0;
-	 }
-	 else if(req.params.select=='selling'){
-	 index=1;
-	 }
-	 else{
-	 index=2;
-	 }
-	 var file = "items.json";
-
-	 fs.readFile(file, 'utf8', function(err, data){
-	 if(err){
-	 console.log('Error: '+err);
-	 }
-	 else{
-	 data = JSON.parse(data);
-
-	 response = {"items" : data[index]};
-	 res.json(response);
-	 }
-	 });*/
-
+	// console.log("GET " + req.url);
 	var client = new pg.Client(conString);
 	client.connect();
 
 	var queryText;
 	// var index = -1;
 	if (req.params.select == 'bidding') {
-		queryText = "select item.*, max(biddate) as date, max(bidprice)" + 
-		"from account natural join places" + 
-		"natural join bid natural join on_event" + 
-		"natural join bid_event natural join participates" + 
-		"natural join item" + 
-		"where account.accpassword = $1" + 
-		"group by item.itemid order by date";
-
 		var query = client.query({
 			text : "select item.*, max(biddate) as date, max(bidprice) from account natural join places natural join bid natural join on_event natural join bid_event natural join participates natural join item where account.accpassword = $1 group by item.itemid order by date",
 			values : [req.body.acc]
@@ -355,12 +321,6 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		});
 
 	} else if (req.params.select == 'selling') {
-		queryText = "select item.*" + 
-		"from account natural join sells natural join item" + 
-		"where account.accpassword = $1 and itemid not in" + 
-		"(select itemid" + "from sold natural join item" + 
-		"where restock = false)";
-
 		var query = client.query({
 			text : "select item.*" + 
 		"from account natural join sells natural join item where account.accpassword = $1 and itemid not in (select itemid" + "from sold natural join item where restock = false)",
@@ -379,10 +339,6 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		});
 
 	} else {
-		queryText = "select item.*" + 
-		"from account natural join sold natural join item" + 
-		"where account.accpassword = $1";
-
 		var query = client.query({
 			text : "select item.* from account natural join sold natural join item where account.accpassword = $1",
 			values : [req.body.acc]
@@ -400,45 +356,13 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 		});
 
 	}
-	// var file = "items.json";
-
-	// fs.readFile(file, 'utf8', function(err, data) {
-	// if (err) {
-	// console.log('Error: ' + err);
-	// } else {
-	// data = JSON.parse(data);
-	//
-	// response = {
-	// "items" : data[index]
-	// };
-	// res.json(response);
-	// }
-	// });
-
-	/*
-	 var query = client.query({
-	 text : queryText,
-	 values : [req.body.acc]
-	 });
-	 query.on("row", function(row, result) {
-	 result.addRow(row);
-	 // console.log(id);
-	 });
-	 query.on("end", function(result) {
-	 var response = {
-	 "items" : result.rows
-	 };
-	 client.end();
-	 res.json(response);
-	 });
-	 */
 
 });
 
 //REST Get an item for the buyer
 app.get('/SpruceServer/getProduct/:id', function(req, res) {
 
-	console.log("GET " + req.url);
+	// console.log("GET " + req.url);
 
 	var id = req.params.id;
 
