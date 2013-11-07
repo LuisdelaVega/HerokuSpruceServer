@@ -305,7 +305,7 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 	// var index = -1;
 	if (req.params.select == 'bidding') {
 		var query = client.query({
-			text : "select item.*, max(biddate) as date, max(bidprice) from account natural join places natural join bid natural join on_event natural join bid_event natural join participates natural join item where account.accpassword = $1 group by item.itemid order by date",
+			text : "select item.*, max(biddate) as date, max(bidprice), bid.biddate from account natural join places natural join bid natural join on_event natural join bid_event natural join participates natural join item where account.accpassword = $1 group by item.itemid order by date",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
@@ -340,7 +340,7 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 
 	} else {
 		var query = client.query({
-			text : "select item.* from account natural join sold natural join item where account.accpassword = $1",
+			text : "select item.*, sold.date from account natural join sold natural join item where account.accpassword = $1",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
