@@ -340,7 +340,7 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 
 	} else {
 		var query = client.query({
-			text : "select item.*, sold.date from account natural join sold natural join item where account.accpassword = $1",
+			text : "select item.*, sold.solddate from account natural join sold natural join item where account.accpassword = $1",
 			values : [req.body.acc]
 		});
 		query.on("row", function(row, result) {
