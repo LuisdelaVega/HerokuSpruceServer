@@ -330,55 +330,107 @@ app.put('/SpruceServer/mySpruce/:select', function(req, res) {
 	var queryText;
 	// var index = -1;
 	if (req.params.select == 'bidding') {
-		queryText = "select item.*, max(biddate) as date, max(bidprice)"+
-			"from account natural join places"+
-			"natural join bid natural join on_event"+
-			"natural join bid_event natural join participates"+
-			"natural join item"+
-			"where account.accpassword = $1"+
-			"group by item.itemid order by date";
+		queryText = "select item.*, max(biddate) as date, max(bidprice)" + 
+		"from account natural join places" + 
+		"natural join bid natural join on_event" + 
+		"natural join bid_event natural join participates" + 
+		"natural join item" + 
+		"where account.accpassword = $1" + 
+		"group by item.itemid order by date";
+
+		var query = client.query({
+			text : queryText,
+			values : [req.body.acc]
+		});
+		query.on("row", function(row, result) {
+			result.addRow(row);
+			// console.log(id);
+		});
+		query.on("end", function(result) {
+			var response = {
+				"items" : result.rows
+			};
+			client.end();
+			res.json(response);
+		});
+
 	} else if (req.params.select == 'selling') {
-		queryText = "select item.*"+
-			"from account natural join sells natural join item"+
-			"where account.accpassword = $1 and itemid not in"+
-				"(select itemid"+
-				"from sold natural join item"+
-				"where restock = false)";
+		queryText = "select item.*" + 
+		"from account natural join sells natural join item" + 
+		"where account.accpassword = $1 and itemid not in" + 
+		"(select itemid" + "from sold natural join item" + 
+		"where restock = false)";
+
+		var query = client.query({
+			text : queryText,
+			values : [req.body.acc]
+		});
+		query.on("row", function(row, result) {
+			result.addRow(row);
+			// console.log(id);
+		});
+		query.on("end", function(result) {
+			var response = {
+				"items" : result.rows
+			};
+			client.end();
+			res.json(response);
+		});
+
 	} else {
-		queryText = "select item.*"+
-			"from account natural join sold natural join item"+
-			"where account.accpassword = $1";
+		queryText = "select item.*" + 
+		"from account natural join sold natural join item" + 
+		"where account.accpassword = $1";
+
+		var query = client.query({
+			text : queryText,
+			values : [req.body.acc]
+		});
+		query.on("row", function(row, result) {
+			result.addRow(row);
+			// console.log(id);
+		});
+		query.on("end", function(result) {
+			var response = {
+				"items" : result.rows
+			};
+			client.end();
+			res.json(response);
+		});
+
 	}
 	// var file = "items.json";
 
 	// fs.readFile(file, 'utf8', function(err, data) {
-		// if (err) {
-			// console.log('Error: ' + err);
-		// } else {
-			// data = JSON.parse(data);
-// 
-			// response = {
-				// "items" : data[index]
-			// };
-			// res.json(response);
-		// }
+	// if (err) {
+	// console.log('Error: ' + err);
+	// } else {
+	// data = JSON.parse(data);
+	//
+	// response = {
+	// "items" : data[index]
+	// };
+	// res.json(response);
+	// }
 	// });
 
-	var query = client.query({
-		text : queryText,
-		values : [req.body.acc]
-	});
-	query.on("row", function(row, result) {
-		result.addRow(row);
-		// console.log(id);
-	});
-	query.on("end", function(result) {
-		var response = {
-			"items" : result.rows
-		};
-		client.end();
-		res.json(response);
-	});
+	/*
+	 var query = client.query({
+	 text : queryText,
+	 values : [req.body.acc]
+	 });
+	 query.on("row", function(row, result) {
+	 result.addRow(row);
+	 // console.log(id);
+	 });
+	 query.on("end", function(result) {
+	 var response = {
+	 "items" : result.rows
+	 };
+	 client.end();
+	 res.json(response);
+	 });
+	 */
 
 });
 
@@ -617,4 +669,4 @@ app.get('/', function(req, res) {
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
 	console.log("Listening on " + port);
-}); 
+});
