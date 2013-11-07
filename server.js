@@ -827,6 +827,7 @@ app.put('/SpruceServer/generateInvoice', function(req, res) {
 							query3.on("end", function(result3) {
 								// res.json(true);
 								if(i+1 == result.rows.length){
+									client.end();
 									res.json(true);
 								}
 							});
