@@ -183,7 +183,7 @@ app.get('/SpruceServer/getItemsForCategory/:category/:orderby/:offset', function
 		});
 	} else {
 		query = client.query({
-			text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE amount > 0 AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1) ORDER BY " + orderby[0] + " " + orderby[1] + " OFFSET $2",
+			text : "SELECT item.* FROM category NATURAL JOIN describe NATURAL JOIN item WHERE (amount > 0 OR restock = true) AND catid IN (SELECT subcatid FROM subcat WHERE catid = $1) ORDER BY " + orderby[0] + " " + orderby[1] + " OFFSET $2",
 			values : [categoryId, offset]
 		});
 	}
@@ -375,12 +375,12 @@ app.get('/SpruceServer/getProduct/:id', function(req, res) {
 	});
 	query.on("row", function(row, result) {
 		result.addRow(row);
-		console.log(id);
+		// console.log(id);
 	});
 	query.on("end", function(result) {
 		console.log(result.rows);
 		var query1 = client.query({
-			text : "select bidevent.* from item natural join bidevent natural join participates where itemid=$1",
+			text : "select bid_event.* from item natural join bid_event natural join participates where itemid=$1",
 			values : [result.rows[0].itemid]
 		});
 		query1.on("row", function(row2, result2) {
@@ -404,7 +404,7 @@ app.get('/SpruceServer/seller-product-bids/:id', function(req, res) {
 	var client = new pg.Client(conString);
 	client.connect();
 	var query0 = client.query({
-		text : "SELECT accusername,bidprice FROM item NATURAL JOIN participates NATURAL JOIN bidevent NATURAL JOIN onevent NATURAL JOIN bid NATURAL JOIN places NATURAL JOIN account WHERE itemid=$1 ORDER BY bidprice desc",
+		text : "SELECT accusername,bidprice FROM item NATURAL JOIN participates NATURAL JOIN bid_event NATURAL JOIN on_event NATURAL JOIN bid NATURAL JOIN places NATURAL JOIN account WHERE itemid=$1 ORDER BY bidprice desc",
 		values : [req.params.id],
 	});
 	query0.on("row", function(row, result) {
