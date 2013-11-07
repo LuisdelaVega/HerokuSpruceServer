@@ -61,7 +61,7 @@ app.put('/SpruceServer/authenticate1', function(req, res) {
 	client.connect();
 
 	var username = req.body.username;
-	console.log("Login: "+username);
+	console.log("Login: " + username);
 
 	var query = client.query({
 		text : "SELECT accslt FROM account WHERE accusername = $1",
@@ -75,12 +75,12 @@ app.put('/SpruceServer/authenticate1', function(req, res) {
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
 			var response = {
-				"success":true,
+				"success" : true,
 				"acc" : result.rows
 			};
 			client.end();
 			res.json(response);
-			console.log("Found username "+ JSON.stringify(response));
+			console.log("Found username " + JSON.stringify(response));
 		} else {
 			var query1 = client.query({
 				text : "SELECT adminslt as accslt FROM administrator WHERE adminusername = $1",
@@ -92,15 +92,16 @@ app.put('/SpruceServer/authenticate1', function(req, res) {
 			query1.on("end", function(result) {
 				if (result.rows.length > 0) {
 					var response = {
-						"success":true,
+						"success" : true,
 						"acc" : result.rows
 					};
 					res.json(response);
-					console.log("Found admin "+JSON.stringify(response));
-				}
-				else{
-					res.json({"success":false});
-					console.log("No username or admin "+JSON.stringify(response));
+					console.log("Found admin " + JSON.stringify(response));
+				} else {
+					res.json({
+						"success" : false
+					});
+					console.log("No username or admin " + JSON.stringify(response));
 				}
 				client.end();
 			});
@@ -116,7 +117,7 @@ app.put('/SpruceServer/authenticate2', function(req, res) {
 
 	var username = req.body.username;
 	var password = req.body.hash;
-	console.log("Authenticating "+username+" "+password);
+	console.log("Authenticating " + username + " " + password);
 
 	var query = client.query({
 		text : "SELECT accpassword FROM account WHERE accusername = $1 AND accpassword = $2",
@@ -130,17 +131,17 @@ app.put('/SpruceServer/authenticate2', function(req, res) {
 			// req.session.accid = result.rows[0].accid;
 			// console.log("Session for: "+req.session.accid);
 			var response = {
-				"success":true,
-				"user":"user",
+				"success" : true,
+				"user" : "user",
 				"acc" : result.rows
 			};
 			client.end();
 			res.json(response);
-			console.log("Found matching username"+JSON.stringify(response));
+			console.log("Found matching username" + JSON.stringify(response));
 		} else {
 			var query1 = client.query({
 				text : "SELECT adminpassword as accpassword FROM administrator WHERE adminusername = $1 AND adminpassword = $2",
-				values : [username,password]
+				values : [username, password]
 			});
 			query1.on("row", function(row, result) {
 				result.addRow(row);
@@ -148,16 +149,17 @@ app.put('/SpruceServer/authenticate2', function(req, res) {
 			query1.on("end", function(result) {
 				if (result.rows.length > 0) {
 					var response = {
-						"success":true,
-						"user":"admin",
+						"success" : true,
+						"user" : "admin",
 						"acc" : result.rows
 					};
 					res.json(response);
-					console.log("Found matching admin"+JSON.stringify(response));
-				}
-				else{
-					res.json({"success":false});
-					console.log("Failed authentication "+JSON.stringify(response));
+					console.log("Found matching admin" + JSON.stringify(response));
+				} else {
+					res.json({
+						"success" : false
+					});
+					console.log("Failed authentication " + JSON.stringify(response));
 				}
 				client.end();
 			});
@@ -560,6 +562,33 @@ app.put('/SpruceServer/userProfile', function(req, res) {
 	});
 });
 
+//REST for purchase history
+app.put('/SpruceServer/purchaseHistory', function(req, res) {
+	console.log("GET " + req.url);
+
+	// var client = new pg.Client(conString);
+	// client.connect();
+	//
+	// var password = req.body.password;
+	//
+	// var query = client.query({
+	// text : "SELECT * FROM account natural join ships_to natural join saddress WHERE accpassword = $1",
+	// values : [password]
+	// });
+	// query.on("row", function(row, result) {
+	// result.addRow(row);
+	// });
+	//
+	// query.on("end", function(result) {
+	// var response = {
+	// "user" : result.rows
+	// };
+	// client.end();
+	// res.json(response);
+	// });
+
+});
+
 //REST Popular Now View
 app.get('/SpruceServer/Spruce/PopularNow/', function(req, res) {
 	console.log("GET " + req.url);
@@ -612,19 +641,19 @@ app.get('/SpruceServer/home/', function(req, res) {
 
 app.put('/SpruceServer/usergeneralinfo', function(req, res) {
 	console.log("GET " + req.url);
-		
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
 		text : "SELECT accfname,acclname,accemail,accphonenum FROM account WHERE accpassword = $1",
-		values: [password]
+		values : [password]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 
 	query.on("end", function(result) {
 		var response = {
@@ -639,19 +668,19 @@ app.put('/SpruceServer/usergeneralinfo', function(req, res) {
 //Use for getting name for general info
 app.put('/SpruceServer/usercreditcardinfo', function(req, res) {
 	console.log("GET " + req.url);
-		
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
-		text : "SELECT credit_card.*,street,bid FROM account NATURAL JOIN billed natural join credit_card natural join bills_to natural join baddress  WHERE accpassword =$1", 
-		values: [password]
+		text : "SELECT credit_card.*,street,bid FROM account NATURAL JOIN billed natural join credit_card natural join bills_to natural join baddress  WHERE accpassword =$1",
+		values : [password]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 	query.on("end", function(result) {
 		var response = {
 			"creditcard" : result.rows
@@ -665,19 +694,19 @@ app.put('/SpruceServer/usercreditcardinfo', function(req, res) {
 //Use for getting all shipping address
 app.put('/SpruceServer/usershippinginfo', function(req, res) {
 	console.log("GET " + req.url);
-		
+
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
-		text : "SELECT saddress.* FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword =$1", 
-		values: [password]
+		text : "SELECT saddress.* FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword =$1",
+		values : [password]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 	query.on("end", function(result) {
 		var response = {
 			"address" : result.rows
@@ -691,19 +720,19 @@ app.put('/SpruceServer/usershippinginfo', function(req, res) {
 //Use for getting a shipping address
 app.put('/SpruceServer/usereditshipping/:id', function(req, res) {
 	console.log("GET " + req.url);
-	var id=req.params.id;
+	var id = req.params.id;
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
-		text : "SELECT saddress.* FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword =$1 AND sid = $2", 
-		values: [password,id]
+		text : "SELECT saddress.* FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword =$1 AND sid = $2",
+		values : [password, id]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 	query.on("end", function(result) {
 		var response = {
 			"address" : result.rows
@@ -717,19 +746,19 @@ app.put('/SpruceServer/usereditshipping/:id', function(req, res) {
 //Use for getting a billing address
 app.put('/SpruceServer/usereditcreditcard/:id', function(req, res) {
 	console.log("GET " + req.url);
-	var id=req.params.id;
+	var id = req.params.id;
 	var client = new pg.Client(conString);
 	client.connect();
-	
-	var password = req.body.password; 
+
+	var password = req.body.password;
 
 	var query = client.query({
-		text : "SELECT baddress.* FROM account NATURAL JOIN billed natural join credit_card natural join bills_to natural join baddress WHERE accpassword =$1 AND cid = $2", 
-		values: [password,id]
+		text : "SELECT baddress.* FROM account NATURAL JOIN billed natural join credit_card natural join bills_to natural join baddress WHERE accpassword =$1 AND cid = $2",
+		values : [password, id]
 	});
 	query.on("row", function(row, result) {
-			result.addRow(row);
-		});
+		result.addRow(row);
+	});
 	query.on("end", function(result) {
 		var response = {
 			"address" : result.rows
@@ -738,6 +767,78 @@ app.put('/SpruceServer/usereditcreditcard/:id', function(req, res) {
 		client.end();
 		res.json(response);
 	});
+});
+
+app.put('/SpruceServer/generateInvoice', function(req, res) {
+	console.log("GET " + req.url);
+	var client = new pg.Client(conString);
+	client.connect();
+
+	var acc = req.body.acc;
+	var total = req.body.total;
+
+	var query0 = client.query({ // Get the accid
+		text : "SELECT accid FROM account WHERE accpassword = $1",
+		values : [acc]
+	});
+	query0.on("row", function(row, result0) {
+		result0.addRow(row);
+	});
+	query0.on("end", function(result0) {
+		var query = client.query({ // Get the items in the cart
+			text : "SELECT item.*,quantity FROM cart NATURAL JOIN contains NATURAL JOIN item NATURAL JOIN belongs_to NATURAL JOIN account WHERE account.accpassword = $1",
+			values : [acc]
+		});
+		query.on("row", function(row, result) {
+			result.addRow(row);
+		});
+		query.on("end", function(result) {
+			var query1 = client.query({ // Create the invoice
+				text : "INSERT INTO invoice VALUES(DEFAULT, current_timestamp, $1)",
+				values : [total]
+			});
+			query1.on("row", function(row, result1) {
+				result1.addRow(row);
+			});
+			query1.on("end", function(result1) {
+				var query4 = client.query({ // Create the relationshipp between the invoice and the account
+					text : "SELECT max(invoiceid) as invid FROM invoice",
+				});
+				query4.on("row", function(row, result4) {
+					result4.addRow(row);
+				});
+				query4.on("end", function(result4) {
+					var query2 = client.query({ // Create the relationshipp between the invoice and the account
+						text : "INSERT INTO keeps VALUES($1, $2)",
+						values : [result4.rows[0].invid,result0.rows[0].accid]
+					});
+					query2.on("row", function(row, result2) {
+						result2.addRow(row);
+					});
+					query2.on("end", function(result2) {
+						for (var i = 0; i < result.rows.length; i++) {
+							var query3 = client.query({ // Create the relationship between invoice and the items bought
+								text : "INSERT INTO of VALUES($1, $2)",
+								values : [result4.rows[0].invid, result.rows[i].itemid]
+							});
+							query3.on("row", function(row, result3) {
+								result3.addRow(row);
+							});
+							query3.on("end", function(result3) {
+								// res.json(true);
+								if(i+1 == result.rows.length){
+									res.json(true);
+								}
+							});
+						}
+					});
+				});
+
+			});
+
+		});
+	});
+
 });
 
 app.get('/', function(req, res) {
