@@ -1362,6 +1362,119 @@ app.get('/SpruceServer/getRating/:accid', function(req, res) {
 
 });
 
+//Get list of messages in a conversation
+app.put('/SpruceServer/chatUser/:accid', function(req, res) {
+	console.log("GET " + req.url);
+	var client = new pg.Client(conString);
+	client.connect();
+	var query = client.query({
+		text : "select accid from account where accpassword=$1",
+		values : [req.body.password]
+	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+	});
+	query.on("end", function(result) {
+		var query1 = client.query({
+			text : "select * from message where (fromid=$1 and toid=$2) or (fromid=$2 and toid=$1) order by mdate asc",
+			values : [result.rows[0]['accid'], req.params.accid]
+		});
+		query1.on("row", function(row, result1) {
+			result1.addRow(row);
+		});
+		query1.on("end", function(result1) {
+			var query2 = client.query({
+				text : "select accid,accpassword,accusername,accphoto from account where accid=$1",
+				values : [req.params.accid]
+			});
+			query2.on("row", function(row, result2) {
+				result2.addRow(row);
+			});
+			query2.on("end", function(result2) {
+				var query3 = client.query({
+					text : "select accid,accpassword,accusername,accphoto from account where accid=$1",
+					values : [result.rows[0]['accid']]
+				});
+				query3.on("row", function(row, result3) {
+					result3.addRow(row);
+				});
+				query3.on("end", function(result3) {
+					var response = {
+						"messages" : result1.rows,
+						"id1" : result2.rows,
+						"id2" : result3.rows
+					};
+					client.end();
+					res.json(response);
+					console.log(response);
+				});
+			});
+		});
+	});
+});
+
+//PUT for reply to a user
+app.put('/SpruceServer/replyUser/:accid', function(req, res) {
+	console.log("GET " + req.url);
+	var client = new pg.Client(conString);
+	client.connect();
+	var query = client.query({
+		text : "select accid from account where accpassword=$1",
+		values : [req.body.password]
+	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+	});
+	query.on("end", function(result) {
+		client.query("insert into message values(DEFAULT,$1,$2,localtimestamp,$3)", [result.rows[0]['accid'], req.params.accid, req.body.reply], function(err, result) {
+			if (err) {
+				var response = {
+					"success" : false
+				};
+				client.end();
+				res.json(response);
+			} else {
+				client.query('COMMIT');
+				var response = {
+					"success" : true
+				};
+				client.end();
+				res.json(response);
+			}
+		});
+	});
+});
+
+//PUT for getting all conversation of a user
+app.put('/SpruceServer/conversationUser', function(req, res) {
+	console.log("GET " + req.url);
+	var client = new pg.Client(conString);
+	client.connect();
+	var query = client.query({
+		text : "select accid from account where accpassword=$1",
+		values : [req.body.password]
+	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+	});
+	query.on("end", function(result) {
+		var query1 = client.query({
+			text : "select distinct accid,accusername, accphoto from account, message where (fromid=$1 or toid=$1) and accid!=$1 and (accid=fromid or accid=toid)",
+			values : [result.rows[0]['accid']]
+		});
+		query1.on("row", function(row, result) {
+			result.addRow(row);
+		});
+		query1.on("end", function(result) {
+			var response = {
+				"conversations" : result.rows
+			};
+			client.end();
+			res.json(response);
+		});
+	});
+});
+
 //REST for purchase history
 app.put('/SpruceServer/purchaseHistory', function(req, res) {
 	console.log("GET " + req.url);
