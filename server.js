@@ -1687,7 +1687,7 @@ app.put('/SpruceServer/generateInvoice/buyitnow', function(req, res) {
 	});
 
 	query.on("end", function(result) {
-		if (result.rows[0].amount >= quantity) {
+		if (result.rows[0]['amount'] >= quantity) {
 			//client.query("BEGIN;");
 			// Create the new invoice
 			client.query("INSERT INTO invoice VALUES(DEFAULT, current_timestamp, $1);", [total]);
