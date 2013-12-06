@@ -1679,7 +1679,7 @@ app.put('/SpruceServer/generateInvoice/buyitnow', function(req, res) {
 	var quantity = req.body.quantity;
 
 	var query = client.query({
-		text : "SELECT item.amount FROM item WHERE item.itemid = $1",
+		text : "BEGIN; SELECT item.amount FROM item WHERE item.itemid = $1;",
 		values : [itemid]
 	});
 	query.on("row", function(row, result) {
@@ -1706,14 +1706,16 @@ app.put('/SpruceServer/generateInvoice/buyitnow', function(req, res) {
 			var response = {
 				"success" : true
 			};
+			res.json(response);
 		} else {
+			client.query("COMMIT;");
 			var response = {
 				"success" : false
 			};
+			res.json(response);
 		}
 	});
 
-	res.json(response);
 });
 
 app.put('/SpruceServer/generateInvoice/auction', function(req, res) {
