@@ -1677,9 +1677,9 @@ app.put('/SpruceServer/generateInvoice/buyitnow', function(req, res) {
 	var address = req.body.address;
 	var itemid = req.body.itemid;
 	var quantity = req.body.quantity;
-
+	client.query("BEGIN;");
 	var query = client.query({
-		text : "BEGIN; SELECT item.amount FROM item WHERE item.itemid = $1;",
+		text : "SELECT item.amount FROM item WHERE item.itemid = $1;",
 		values : [itemid]
 	});
 	query.on("row", function(row, result) {
@@ -1726,6 +1726,7 @@ app.put('/SpruceServer/generateInvoice/auction', function(req, res) {
 	var username = req.body.username;
 	var total = req.body.price;
 	var itemid = req.body.itemid;
+	var acc = req.body.password;
 
 	client.query("BEGIN;");
 	// Create the new invoice
