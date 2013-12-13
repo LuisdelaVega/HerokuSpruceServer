@@ -35,6 +35,71 @@ var conString = process.env.DATABASE_URL;
 // c) PUT - Update an individual object, or collection  (Database update operation)
 // d) DELETE - Remove an individual object, or collection (Database delete operation)
 
+app.put('/SpruceServer/checkpassword', function(req, res) {
+	console.log("GET " + req.url);
+	var client = new pg.Client(conString);
+	client.connect();
+	var query = client.query({
+		text : "SELECT accslt FROM account WHERE accpassword = $1",
+		values : [req.body.password]
+	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+	});
+	query.on("end", function(result) {
+		var response = {
+			"salt" : result.rows
+		};
+		client.end();
+		res.json(response);
+	});
+});
+
+app.put('/SpruceServer/changepassword', function(req, res) {
+	console.log("GET " + req.url);
+	console.log(req.body.password);
+	console.log(req.body.oldhash);
+	console.log(req.body.newhash);
+	console.log(req.body.newsalt);
+	var client = new pg.Client(conString);
+	client.connect();
+	client.query("BEGIN");
+	var query = client.query({
+		text : "SELECT accpassword FROM account WHERE accpassword = $1",
+		values : [req.body.password]
+	});
+	query.on("row", function(row, result) {
+		result.addRow(row);
+	});
+	query.on("end", function(result) {
+		if (result.rows[0].accpassword == req.body.oldhash) {
+			client.query("UPDATE account SET accpassword=$1,accslt=$2 WHERE accpassword=$3", [req.body.newhash, req.body.newsalt, req.body.password], function(err, result) {
+				if (err) {
+					var response = {
+						"success" : false
+					};
+					client.end();
+					res.json(response);
+				} else {
+					client.query("COMMIT");
+					var response = {
+						"success" : true
+					};
+					client.end();
+					res.json(response);
+				}
+			});
+		} else {
+			client.query("COMMIT");
+			var response = {
+				"success" : false
+			};
+			client.end();
+			res.json(response);
+		}
+	});
+});
+
 app.put('/SpruceServer/makedefaultsaddress/:sid', function(req, res) {
 	console.log("GET " + req.url);
 
