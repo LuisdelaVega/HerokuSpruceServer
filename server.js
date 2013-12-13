@@ -44,12 +44,12 @@ app.put('/SpruceServer/makedefaultsaddress/:sid', function(req, res) {
 	client.query("BEGIN;");
 
 	var query = client.query({
-		text : "update saddress set defaultsaddress = false where sid in (select sid from saddress natural join ships_to natural join account where accpassword = $1)",
+		text : "update saddress set defaultaddress = false where sid in (select sid from saddress natural join ships_to natural join account where accpassword = $1)",
 		values : [req.body.password]
 	});
 
 	var query = client.query({
-		text : "update saddress set defaultsaddress = true where sid = $1",
+		text : "update saddress set defaultaddress = true where sid = $1",
 		values : [req.params.sid]
 	});
 
