@@ -143,7 +143,7 @@ app.put('/SpruceServer/addUserShippingAddress/:street/:city/:state/:country/:zip
 	client.query("BEGIN;");
 
 	var query = client.query({
-		text : "INSERT INTO saddress VALUES (DEFAULT, $1, $2, $3, $4, $5, true, false)",
+		text : "INSERT INTO saddress VALUES (DEFAULT, $1, $2, $3, $4, $5, false, true)",
 		values : [req.params.street, req.params.city, req.params.state, req.params.country, req.params.zip]
 	});
 
@@ -347,7 +347,7 @@ app.get('/SpruceServer/addAdminShippingAddress/:id/:street/:city/:state/:country
 	client.query("BEGIN;");
 
 	var query = client.query({
-		text : "INSERT INTO saddress VALUES (DEFAULT, $1, $2, $3, $4, $5, true, false)",
+		text : "INSERT INTO saddress VALUES (DEFAULT, $1, $2, $3, $4, $5, false, true)",
 		values : [req.params.street, req.params.city, req.params.state, req.params.country, req.params.zip]
 	});
 
