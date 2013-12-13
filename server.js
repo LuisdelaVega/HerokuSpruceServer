@@ -142,28 +142,28 @@ app.put('/SpruceServer/addUserShippingAddress/:street/:city/:state/:country/:zip
 	client.connect();
 	
 	var password = req.body.password;
-	var id = req.params.id;
-	console.log(id);
 	client.query("BEGIN;");
 	
 	var query = client.query({	
 		text : "INSERT INTO saddress VALUES (DEFAULT, $1, $2, $3, $4, $5, true, false)",
 		values : [req.params.street, req.params.city, req.params.state, req.params.country, req.params.zip]
 	});
-	
-	var query = client.query({	
-		text : "INSERT INTO ships_to VALUES((select accid from account where accpassword = $1), (select max(sid) from saddress))",
-		values : [password]
-	});
-	
-	client.query("COMMIT;");
-	query.on("end", function(result) {
-		var response = {
-			"success" : true
-		};
-		console.log(result);
-		client.end();
-		res.json(response);
+
+	client.query("INSERT INTO ships_to VALUES((select accid from account where accpassword = $1), (select max(sid) from saddress))", [password], function(err, result) {
+		if (err) {
+			var response = {
+				"success" : false
+			};
+			client.end();
+			res.json(response);
+		} else {
+			client.query("COMMIT");
+			var response = {
+				"success" : true
+			};
+			client.end();
+			res.json(response);
+		}
 	});
 });
 
@@ -1703,7 +1703,7 @@ app.put('/SpruceServer/checkout', function(req, res) {
 	query.on("end", function(result) {
 		var address = [];
 		var query1 = client.query({
-			text : "SELECT street, city, sid FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword = $1",
+			text : "SELECT street, city, sid FROM account NATURAL JOIN ships_to NATURAL JOIN saddress WHERE accpassword = $1 AND activesaddress = true",
 			values : [password]
 		});
 		query1.on("row", function(row, result2) {
