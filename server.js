@@ -726,7 +726,7 @@ app.put('/SpruceServer/signup', function(req, res) {
 
 	client.query("BEGIN;");
 	// Create the new account
-	client.query("INSERT INTO account VALUES(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9);", [fname, lname, username, password, rating, photo, phone, email, slt]);
+	client.query("INSERT INTO account VALUES(DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, true);", [fname, lname, username, password, rating, photo, phone, email, slt]);
 	if ( typeof gid == 'undefined') {
 		// Create the new cart
 		client.query("INSERT INTO cart VALUES(DEFAULT);");
